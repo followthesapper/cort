@@ -127,17 +127,19 @@ def compute_local_coherence(
     cos_phases = torch.cos(phases)
     sin_phases = torch.sin(phases)
 
-    # Pad for sliding window
-    pad = window // 2
-    cos_padded = F.pad(cos_phases, (0, 0, pad, pad), mode="replicate")
-    sin_padded = F.pad(sin_phases, (0, 0, pad, pad), mode="replicate")
+    # Pad for sliding window (pad so output matches input length)
+    # For kernel_size=window, we need (window-1) total padding
+    pad_left = (window - 1) // 2
+    pad_right = window - 1 - pad_left
+    cos_padded = F.pad(cos_phases, (0, 0, pad_left, pad_right), mode="replicate")
+    sin_padded = F.pad(sin_phases, (0, 0, pad_left, pad_right), mode="replicate")
 
     # Use avg_pool1d for efficient sliding window mean
-    # Transpose to [B, D, L+2*pad] for pooling
+    # Transpose to [B, D, L+window-1] for pooling
     cos_t = cos_padded.transpose(1, 2)
     sin_t = sin_padded.transpose(1, 2)
 
-    # Pool across sequence dimension
+    # Pool across sequence dimension - output will be [B, D, L]
     mean_cos = F.avg_pool1d(cos_t, kernel_size=window, stride=1)
     mean_sin = F.avg_pool1d(sin_t, kernel_size=window, stride=1)
 

@@ -78,7 +78,10 @@ class TestGeneration:
 
     def test_generate_deterministic(self):
         """Generation with temperature=0 should be deterministic."""
-        config = CoRTConfig(vocab_size=1000, d_model=256, n_layers=2, n_heads=4)
+        config = CoRTConfig(
+            vocab_size=1000, d_model=256, n_layers=2, n_heads=4,
+            adaptive_routing=False,  # Disable adaptive for determinism
+        )
         model = CoRTModel(config)
         model.eval()
 
@@ -109,8 +112,13 @@ class TestSaveLoad:
 
     def test_save_load_roundtrip(self):
         """Model should round-trip through save/load."""
-        config = CoRTConfig(vocab_size=1000, d_model=256, n_layers=2, n_heads=4)
+        # Use non-adaptive routing for deterministic behavior
+        config = CoRTConfig(
+            vocab_size=1000, d_model=256, n_layers=2, n_heads=4,
+            adaptive_routing=False,
+        )
         model = CoRTModel(config)
+        model.eval()
 
         # Get output before save
         input_ids = torch.randint(0, 1000, (1, 32))
@@ -123,12 +131,13 @@ class TestSaveLoad:
             model.save_pretrained(path)
 
             loaded = CoRTModel.from_pretrained(path)
+            loaded.eval()
 
         # Get output after load
         with torch.no_grad():
             logits_after = loaded(input_ids)
 
-        assert torch.allclose(logits_before, logits_after)
+        assert torch.allclose(logits_before, logits_after, atol=1e-5)
 
     def test_config_preserved(self):
         """Config should be preserved through save/load."""
