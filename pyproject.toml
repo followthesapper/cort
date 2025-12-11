@@ -1,0 +1,96 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cort-transformer"
+version = "0.1.0"
+description = "Coherence-Routed Transformer: Adaptive attention routing using phase coherence metrics"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [{name = "Dylan Vaca", email = "dylan@phaselab.dev"}]
+keywords = [
+    "transformer",
+    "deep learning",
+    "attention",
+    "coherence",
+    "routing",
+    "language model",
+    "neural network",
+    "pytorch",
+    "machine learning",
+    "NLP",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+requires-python = ">=3.9"
+
+dependencies = [
+    "torch>=2.0",
+    "numpy>=1.21",
+]
+
+[project.optional-dependencies]
+training = [
+    "tiktoken>=0.5",
+    "datasets>=2.0",
+    "tqdm>=4.0",
+]
+plotting = [
+    "matplotlib>=3.5",
+    "seaborn>=0.12",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=23.0",
+    "isort>=5.12",
+    "mypy>=1.0",
+    "ruff>=0.1",
+]
+all = ["cort-transformer[training,plotting,dev]"]
+
+[project.urls]
+Homepage = "https://github.com/followthesapper/cort"
+Documentation = "https://github.com/followthesapper/cort#readme"
+Repository = "https://github.com/followthesapper/cort"
+Issues = "https://github.com/followthesapper/cort/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+cort = ["py.typed"]
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311", "py312"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --cov=cort --cov-report=term-missing"
